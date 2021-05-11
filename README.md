@@ -37,4 +37,6 @@ namespace Example
 - MAC Address (Customizable: True/False)
 - IP Address (Customizable: True/False)
 
+<img src="http://anarchy.5v.pl/example.png" alt="png">
+
 ## StealerLibrary is licensed under the GNU General Public License v3.0. Before doing anything with the source code, please read [this.](https://www.gnu.org/licenses/gpl-3.0.html)
