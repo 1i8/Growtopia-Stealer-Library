@@ -1,5 +1,5 @@
 # StealerLibrary
-Growtopia (Save.dat) Stealer Library that basically let you to write a stealer with 1 line of code.
+Growtopia (Save.dat) Stealer Library that let you to write a stealer with 1 line of code.
 
 ## Compiled Version: [All Releases](https://github.com/extatent/StealerLibrary/releases/)
 
