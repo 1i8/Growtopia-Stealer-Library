@@ -54,4 +54,4 @@ namespace Example
 
 <img src="http://anarchy.5v.pl/example2.png" alt="png">
 
-## StealerLibrary is licensed under the GNU General Public License v3.0. Before doing anything with the source code, please read [this.](https://www.gnu.org/licenses/gpl-3.0.html)
+## StealerLibrary is licensed under the GNU General Public License v3.0. See the [LICENSE](https://github.com/extatent/StealerLibrary/blob/main/LICENSE) file for details.
