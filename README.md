@@ -5,7 +5,7 @@ Growtopia (Save.dat) Stealer Library that let you to write a stealer with 1 line
 
 ### Compile the source code with Visual Studio and add the .DLL to the references in your project and start writting the code below.
 
-#### Your program might be FUD, but the .DLL isn't, use any obfuscator to make it FUD. (Used [Agile.Net](https://secureteam.net/acode-features-detailed) Scan Results 0/26) (Without Obfuscator 4/26)
+#### Your program might be FUD, but the .DLL isn't. Use obfuscator for that. (4/26 Detections)
 
 ## Example Usage : 
 
