@@ -61,7 +61,7 @@ namespace Example
 - Country (Customizable: True/False)
 - Desktop Screenshot (Customizable: True/False)
 ### V3
-- Gmail Method (Customizable: True/False)
+- Gmail Method (Optional)
 - Trace Save.dat (Customizable: True/False)
 - Run On Startup (Customizable: True/False)
 - Disable Task Manager (Customizable: True/False)
