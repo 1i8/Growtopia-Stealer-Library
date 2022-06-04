@@ -18,7 +18,7 @@ using System.Windows.Forms;
 
 /* 
        │ Author       : extatent
-       │ Name         : StealerLibrary
+       │ Name         : StealerLibrary 
        │ GitHub       : https://github.com/extatent
 */
 
